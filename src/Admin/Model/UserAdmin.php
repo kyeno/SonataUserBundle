@@ -135,25 +135,6 @@ class UserAdmin extends AbstractAdmin
             ->with('Groups')
                 ->add('groups')
             ->end()
-            ->with('Profile')
-                ->add('dateOfBirth')
-                ->add('firstname')
-                ->add('lastname')
-                ->add('website')
-                ->add('biography')
-                ->add('gender')
-                ->add('locale')
-                ->add('timezone')
-                ->add('phone')
-            ->end()
-            ->with('Social')
-                ->add('facebookUid')
-                ->add('facebookName')
-                ->add('twitterUid')
-                ->add('twitterName')
-                ->add('gplusUid')
-                ->add('gplusName')
-            ->end()
             ->with('Security')
                 ->add('token')
                 ->add('twoStepVerificationCode')
@@ -183,17 +164,6 @@ class UserAdmin extends AbstractAdmin
 
         $now = new \DateTime();
 
-        $genderOptions = [
-            'choices' => \call_user_func([$this->getUserManager()->getClass(), 'getGenderList']),
-            'required' => true,
-            'translation_domain' => $this->getTranslationDomain(),
-        ];
-
-        // NEXT_MAJOR: Remove this when dropping support for SF 2.8
-        if (method_exists(FormTypeInterface::class, 'setDefaultOptions')) {
-            $genderOptions['choices_as_values'] = true;
-        }
-
         $formMapper
             ->tab('User')
                 ->with('General')
@@ -202,30 +172,6 @@ class UserAdmin extends AbstractAdmin
                     ->add('plainPassword', TextType::class, [
                         'required' => (!$this->getSubject() || null === $this->getSubject()->getId()),
                     ])
-                ->end()
-                ->with('Profile')
-                    ->add('dateOfBirth', DatePickerType::class, [
-                        'years' => range(1900, $now->format('Y')),
-                        'dp_min_date' => '1-1-1900',
-                        'dp_max_date' => $now->format('c'),
-                        'required' => false,
-                    ])
-                    ->add('firstname', null, ['required' => false])
-                    ->add('lastname', null, ['required' => false])
-                    ->add('website', UrlType::class, ['required' => false])
-                    ->add('biography', TextType::class, ['required' => false])
-                    ->add('gender', ChoiceType::class, $genderOptions)
-                    ->add('locale', LocaleType::class, ['required' => false])
-                    ->add('timezone', TimezoneType::class, ['required' => false])
-                    ->add('phone', null, ['required' => false])
-                ->end()
-                ->with('Social')
-                    ->add('facebookUid', null, ['required' => false])
-                    ->add('facebookName', null, ['required' => false])
-                    ->add('twitterUid', null, ['required' => false])
-                    ->add('twitterName', null, ['required' => false])
-                    ->add('gplusUid', null, ['required' => false])
-                    ->add('gplusName', null, ['required' => false])
                 ->end()
             ->end()
             ->tab('Security')

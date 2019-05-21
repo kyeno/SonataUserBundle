@@ -2,6 +2,8 @@
 
 Symfony SonataUserBundle
 
+Fork of original project with the aim to reduce useless user entity fields
+
 [![Latest Stable Version](https://poser.pugx.org/sonata-project/user-bundle/v/stable)](https://packagist.org/packages/sonata-project/user-bundle)
 [![Latest Unstable Version](https://poser.pugx.org/sonata-project/user-bundle/v/unstable)](https://packagist.org/packages/sonata-project/user-bundle)
 [![License](https://poser.pugx.org/sonata-project/user-bundle/license)](https://packagist.org/packages/sonata-project/user-bundle)
