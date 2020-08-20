@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace Sonata\UserBundle\DependencyInjection;
 
-use Sonata\EasyExtendsBundle\Mapper\DoctrineCollector;
+use Sonata\Doctrine\Mapper\Builder\OptionsBuilder;
+use Sonata\Doctrine\Mapper\DoctrineCollector;
+use Sonata\EasyExtendsBundle\Mapper\DoctrineCollector as DeprecatedDoctrineCollector;
 use Sonata\UserBundle\Document\BaseGroup as DocumentGroup;
 use Sonata\UserBundle\Document\BaseUser as DocumentUser;
 use Sonata\UserBundle\Entity\BaseGroup as EntityGroup;
@@ -98,9 +100,15 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
             $loader->load('security_acl.xml');
         }
 
-        $this->checkManagerTypeToModelTypeMapping($config);
+        $this->checkManagerTypeToModelTypesMapping($config);
 
-        $this->registerDoctrineMapping($config);
+        if (isset($bundles['SonataDoctrineBundle'])) {
+            $this->registerSonataDoctrineMapping($config);
+        } else {
+            // NEXT MAJOR: Remove next line and throw error when not registering SonataDoctrineBundle
+            $this->registerDoctrineMapping($config);
+        }
+
         $this->configureAdminClass($config, $container);
         $this->configureClass($config, $container);
 
@@ -145,8 +153,7 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     }
 
     /**
-     * @param array            $config
-     * @param ContainerBuilder $container
+     * @param array $config
      *
      * @throws \RuntimeException
      *
@@ -178,8 +185,7 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     }
 
     /**
-     * @param array            $config
-     * @param ContainerBuilder $container
+     * @param array $config
      */
     public function configureClass($config, ContainerBuilder $container): void
     {
@@ -196,8 +202,7 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     }
 
     /**
-     * @param array            $config
-     * @param ContainerBuilder $container
+     * @param array $config
      */
     public function configureAdminClass($config, ContainerBuilder $container): void
     {
@@ -206,8 +211,7 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     }
 
     /**
-     * @param array            $config
-     * @param ContainerBuilder $container
+     * @param array $config
      */
     public function configureTranslationDomain($config, ContainerBuilder $container): void
     {
@@ -216,8 +220,7 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     }
 
     /**
-     * @param array            $config
-     * @param ContainerBuilder $container
+     * @param array $config
      */
     public function configureController($config, ContainerBuilder $container): void
     {
@@ -226,17 +229,22 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     }
 
     /**
-     * @param array $config
+     * NEXT_MAJOR: Remove this method.
      */
     public function registerDoctrineMapping(array $config): void
     {
+        @trigger_error(
+            'Using this method is deprecated since sonata-project/user-bundle 4.7. You should instead register SonataDoctrineBundle and use `registerSonataDoctrineMapping()`',
+            E_USER_DEPRECATED
+        );
+
         foreach ($config['class'] as $type => $class) {
             if (!class_exists($class)) {
                 return;
             }
         }
 
-        $collector = DoctrineCollector::getInstance();
+        $collector = DeprecatedDoctrineCollector::getInstance();
 
         $collector->addAssociation($config['class']['user'], 'mapManyToMany', [
             'fieldName' => 'groups',
@@ -263,63 +271,86 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     /**
      * Adds aliases for user & group managers depending on $managerType.
      *
-     * @param ContainerBuilder $container
-     * @param string           $managerType
+     * @param string $managerType
      */
     protected function aliasManagers(ContainerBuilder $container, $managerType): void
     {
-        $container->setAlias('sonata.user.user_manager', sprintf('sonata.user.%s.user_manager', $managerType));
-        $container->setAlias('sonata.user.group_manager', sprintf('sonata.user.%s.group_manager', $managerType));
-
-        // NEXT_MAJOR: call setPublic(true) directly, when dropping support for Sf 3.3
-        $container->getAlias('sonata.user.user_manager')->setPublic(true);
-        $container->getAlias('sonata.user.group_manager')->setPublic(true);
+        $container
+            ->setAlias('sonata.user.user_manager', sprintf('sonata.user.%s.user_manager', $managerType))
+            ->setPublic(true);
+        $container
+            ->setAlias('sonata.user.group_manager', sprintf('sonata.user.%s.group_manager', $managerType))
+            ->setPublic(true);
     }
 
-    private function checkManagerTypeToModelTypeMapping(array $config): void
+    private function checkManagerTypeToModelTypesMapping(array $config): void
     {
         $managerType = $config['manager_type'];
 
-        $actualModelClasses = [
-            $config['class']['user'],
-            $config['class']['group'],
-        ];
-
-        if ('orm' === $managerType) {
-            $expectedModelClasses = [
-                EntityUser::class,
-                EntityGroup::class,
-            ];
-        } elseif ('mongodb' === $managerType) {
-            $expectedModelClasses = [
-                DocumentUser::class,
-                DocumentGroup::class,
-            ];
-        } else {
+        if (!\in_array($managerType, ['orm', 'mongodb'], true)) {
             throw new \InvalidArgumentException(sprintf('Invalid manager type "%s".', $managerType));
         }
 
-        foreach ($actualModelClasses as $index => $actualModelClass) {
-            if ('\\' === substr($actualModelClass, 0, 1)) {
-                $actualModelClass = substr($actualModelClass, 1);
-            }
+        $this->prohibitModelTypeMapping(
+            $config['class']['user'],
+            'orm' === $managerType ? DocumentUser::class : EntityUser::class,
+            $managerType
+        );
 
-            $expectedModelClass = $expectedModelClasses[$index];
+        $this->prohibitModelTypeMapping(
+            $config['class']['group'],
+            'orm' === $managerType ? DocumentGroup::class : EntityGroup::class,
+            $managerType
+        );
+    }
 
-            if ($actualModelClass !== $expectedModelClass && !is_subclass_of($actualModelClass, $expectedModelClass)) {
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        'Model class "%s" does not correspond to manager type "%s".',
-                        $actualModelClass,
-                        $managerType
-                    )
-                );
-            }
+    /**
+     * Prohibit using wrong model type mapping.
+     */
+    private function prohibitModelTypeMapping(
+        string $actualModelClass,
+        string $prohibitedModelClass,
+        string $managerType
+    ): void {
+        if (is_a($actualModelClass, $prohibitedModelClass, true)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Model class "%s" does not correspond to manager type "%s".',
+                    $actualModelClass,
+                    $managerType
+                )
+            );
         }
     }
 
     private function configureMailer(array $config, ContainerBuilder $container): void
     {
         $container->setAlias('sonata.user.mailer', $config['mailer']);
+    }
+
+    private function registerSonataDoctrineMapping(array $config): void
+    {
+        foreach ($config['class'] as $type => $class) {
+            if (!class_exists($class)) {
+                return;
+            }
+        }
+
+        $collector = DoctrineCollector::getInstance();
+
+        $collector->addAssociation(
+            $config['class']['user'],
+            'mapManyToMany',
+            OptionsBuilder::createManyToMany('groups', $config['class']['group'])
+                ->addJoinTable($config['table']['user_group'], [[
+                    'name' => 'user_id',
+                    'referencedColumnName' => 'id',
+                    'onDelete' => 'CASCADE',
+                ]], [[
+                    'name' => 'group_id',
+                    'referencedColumnName' => 'id',
+                    'onDelete' => 'CASCADE',
+                ]])
+        );
     }
 }

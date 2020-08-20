@@ -15,22 +15,20 @@ namespace Sonata\UserBundle\Model;
 
 use FOS\UserBundle\Model\GroupInterface;
 use FOS\UserBundle\Model\GroupManagerInterface as BaseInterface;
-use Sonata\CoreBundle\Model\PageableManagerInterface;
+use Sonata\DatagridBundle\Pager\PageableInterface;
 
 /**
  * @author Hugo Briand <briand@ekino.com>
  */
-interface GroupManagerInterface extends BaseInterface, PageableManagerInterface
+interface GroupManagerInterface extends BaseInterface, PageableInterface
 {
     /**
      * Alias for the repository method.
      *
-     * @param array|null $criteria
-     * @param array|null $orderBy
-     * @param int|null   $limit
-     * @param int|null   $offset
+     * @param int|null $limit
+     * @param int|null $offset
      *
      * @return GroupInterface[]
      */
-    public function findGroupsBy(array $criteria = null, array $orderBy = null, $limit = null, $offset = null);
+    public function findGroupsBy(?array $criteria = null, ?array $orderBy = null, $limit = null, $offset = null);
 }

@@ -13,20 +13,24 @@ declare(strict_types=1);
 
 namespace Sonata\UserBundle\Tests\Controller;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Sonata\UserBundle\Action\CheckEmailAction;
 use Sonata\UserBundle\Action\RequestAction;
 use Sonata\UserBundle\Action\ResetAction;
 use Sonata\UserBundle\Action\SendEmailAction;
 use Sonata\UserBundle\Controller\AdminResettingController;
+use Symfony\Bridge\PhpUnit\ExpectDeprecationTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class AdminResettingControllerTest extends TestCase
 {
+    use ExpectDeprecationTrait;
+
     /**
-     * @var RequestStack|\PHPUnit_Framework_MockObject_MockObject
+     * @var RequestStack|MockObject
      */
     protected $requestStack;
 
@@ -35,7 +39,7 @@ class AdminResettingControllerTest extends TestCase
      */
     protected $testAction;
     /**
-     * @var ContainerBuilder|\PHPUnit_Framework_MockObject_MockObject
+     * @var ContainerBuilder|MockObject
      */
     private $container;
 
@@ -52,14 +56,14 @@ class AdminResettingControllerTest extends TestCase
             SendEmailAction::class => $this->testAction,
             'request_stack' => $this->requestStack,
         ];
-        $this->container->expects($this->any())
+        $this->container
             ->method('has')
-            ->willReturnCallback(static function ($service) use ($services) {
+            ->willReturnCallback(static function (string $service) use ($services): bool {
                 return isset($services[$service]);
             });
-        $this->container->expects($this->any())
+        $this->container
             ->method('get')
-            ->willReturnCallback(static function ($service) use ($services) {
+            ->willReturnCallback(static function (string $service) use ($services) {
                 return $services[$service] ?? null;
             });
     }
@@ -74,17 +78,23 @@ class AdminResettingControllerTest extends TestCase
 
     /**
      * @group legacy
-     * @expectedDeprecation The Sonata\UserBundle\Controller\AdminResettingController class is deprecated since version 4.x and will be removed in 5.0. Use Sonata\UserBundle\Controller\RequestAction, Sonata\UserBundle\Controller\CheckEmailAction, Sonata\UserBundle\Controller\ResetAction or Sonata\UserBundle\Controller\SendEmailAction instead.
      */
     public function testCheckEmailAction(): void
     {
         $request = new Request();
 
-        $this->requestStack->expects($this->any())
+        $this->requestStack
             ->method('getCurrentRequest')
             ->willReturn($request);
 
+        $this->expectDeprecation(
+            'The Sonata\UserBundle\Controller\AdminResettingController class is deprecated since version 4.3.0'
+            .' and will be removed in 5.0. Use Sonata\UserBundle\Action\RequestAction, Sonata\UserBundle\Action\CheckEmailAction'
+            .', Sonata\UserBundle\Action\ResetAction or Sonata\UserBundle\Action\SendEmailAction instead.'
+        );
+
         $controller = $this->getController();
+
         $result = $controller->checkEmailAction($request);
 
         $this->assertSame('ok', $result);
@@ -94,7 +104,7 @@ class AdminResettingControllerTest extends TestCase
     {
         $request = new Request();
 
-        $this->requestStack->expects($this->any())
+        $this->requestStack
             ->method('getCurrentRequest')
             ->willReturn($request);
 
@@ -108,7 +118,7 @@ class AdminResettingControllerTest extends TestCase
     {
         $request = new Request();
 
-        $this->requestStack->expects($this->any())
+        $this->requestStack
             ->method('getCurrentRequest')
             ->willReturn($request);
 
@@ -122,7 +132,7 @@ class AdminResettingControllerTest extends TestCase
     {
         $request = new Request();
 
-        $this->requestStack->expects($this->any())
+        $this->requestStack
             ->method('getCurrentRequest')
             ->willReturn($request);
 

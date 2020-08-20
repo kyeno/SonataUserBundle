@@ -13,24 +13,28 @@ declare(strict_types=1);
 
 namespace Sonata\UserBundle\Tests\Controller;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Sonata\UserBundle\Action\CheckLoginAction;
 use Sonata\UserBundle\Action\LoginAction;
 use Sonata\UserBundle\Action\LogoutAction;
 use Sonata\UserBundle\Controller\AdminSecurityController;
+use Symfony\Bridge\PhpUnit\ExpectDeprecationTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminSecurityControllerTest extends TestCase
 {
+    use ExpectDeprecationTrait;
+
     /**
      * @var TestSecurityAction
      */
     private $testAction;
 
     /**
-     * @var ContainerBuilder|\PHPUnit_Framework_MockObject_MockObject
+     * @var ContainerBuilder|MockObject
      */
     private $container;
 
@@ -44,14 +48,14 @@ class AdminSecurityControllerTest extends TestCase
             LoginAction::class => $this->testAction,
             LogoutAction::class => $this->testAction,
         ];
-        $this->container->expects($this->any())
+        $this->container
             ->method('has')
-            ->willReturnCallback(static function ($service) use ($services) {
+            ->willReturnCallback(static function (string $service) use ($services): bool {
                 return isset($services[$service]);
             });
-        $this->container->expects($this->any())
+        $this->container
             ->method('get')
-            ->willReturnCallback(static function ($service) use ($services) {
+            ->willReturnCallback(static function (string $service) use ($services) {
                 return $services[$service] ?? null;
             });
     }
@@ -66,10 +70,15 @@ class AdminSecurityControllerTest extends TestCase
 
     /**
      * @group legacy
-     * @expectedDeprecation The Sonata\UserBundle\Controller\AdminSecurityController class is deprecated since version 4.x and will be removed in 5.0. Use Sonata\UserBundle\Controller\CheckLoginAction, Sonata\UserBundle\Controller\LoginAction or Sonata\UserBundle\Controller\LogoutAction instead.
      */
     public function testLogoutAction(): void
     {
+        $this->expectDeprecation(
+            'The Sonata\UserBundle\Controller\AdminSecurityController class is deprecated since version 4.3.0'
+            .' and will be removed in 5.0. Use Sonata\UserBundle\Action\CheckLoginAction, Sonata\UserBundle\Action\LoginAction'
+            .' or Sonata\UserBundle\Action\LogoutAction instead.'
+        );
+
         $controller = $this->getController();
         $controller->logoutAction();
     }
@@ -83,14 +92,15 @@ class AdminSecurityControllerTest extends TestCase
         $controller->checkAction();
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testLoginAction(): void
     {
         $request = new Request();
 
         $controller = $this->getController();
         $result = $controller->loginAction($request);
-
-        $this->assertInstanceOf(Response::class, $result);
     }
 }
 

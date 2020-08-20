@@ -14,22 +14,20 @@ declare(strict_types=1);
 namespace Sonata\UserBundle\Model;
 
 use FOS\UserBundle\Model\UserManagerInterface as BaseInterface;
-use Sonata\CoreBundle\Model\PageableManagerInterface;
+use Sonata\DatagridBundle\Pager\PageableInterface;
 
 /**
  * @author Hugo Briand <briand@ekino.com>
  */
-interface UserManagerInterface extends BaseInterface, PageableManagerInterface
+interface UserManagerInterface extends BaseInterface, PageableInterface
 {
     /**
      * Alias for the repository method.
      *
-     * @param array|null $criteria
-     * @param array|null $orderBy
-     * @param int|null   $limit
-     * @param int|null   $offset
+     * @param int|null $limit
+     * @param int|null $offset
      *
      * @return UserInterface[]
      */
-    public function findUsersBy(array $criteria = null, array $orderBy = null, $limit = null, $offset = null);
+    public function findUsersBy(?array $criteria = null, ?array $orderBy = null, $limit = null, $offset = null);
 }

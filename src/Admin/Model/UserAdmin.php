@@ -20,14 +20,13 @@ use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Form\Type\ModelType;
 use Sonata\AdminBundle\Show\ShowMapper;
-use Sonata\CoreBundle\Form\Type\DatePickerType;
+use Sonata\Form\Type\DatePickerType;
 use Sonata\UserBundle\Form\Type\SecurityRolesType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\LocaleType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
-use Symfony\Component\Form\FormTypeInterface;
 
 class UserAdmin extends AbstractAdmin
 {
@@ -73,9 +72,6 @@ class UserAdmin extends AbstractAdmin
         $this->getUserManager()->updatePassword($user);
     }
 
-    /**
-     * @param UserManagerInterface $userManager
-     */
     public function setUserManager(UserManagerInterface $userManager): void
     {
         $this->userManager = $userManager;

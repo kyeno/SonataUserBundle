@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 use Sonata\UserBundle\Entity\BaseUser;
 use Sonata\UserBundle\EventListener\TwoFactorLoginSuccessHandler;
 use Sonata\UserBundle\GoogleAuthenticator\Helper;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,8 +28,8 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Core\Authorization\Voter\RoleHierarchyVoter;
-use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
+use Twig\Environment;
 
 /**
  * @author Aleksey Krichevsky <krich.al.vl@gmail.com>
@@ -68,30 +67,30 @@ class TwoFactorLoginSuccessHandlerTest extends TestCase
     /**
      * @dataProvider data
      */
-    public function testDifferentCases(string $secret, string $role, string $ip, bool $needSession, string $expected): void
+    public function testDifferentCases(?string $secret, string $role, ?string $ip, bool $needSession, string $expected): void
     {
         $this->createTestClass($secret, $role, $ip, $needSession);
         $response = $this->testClass->onAuthenticationSuccess($this->request, $this->token);
         $this->assertInstanceOf($expected, $response);
     }
 
-    public function data()
+    public function data(): array
     {
         return [
-            [false, 'ROLE_USER', '192.168.1.1', false, Response::class],
-            [false, 'ROLE_ADMIN', false, false, RedirectResponse::class],
+            [null, 'ROLE_USER', '192.168.1.1', false, Response::class],
+            [null, 'ROLE_ADMIN', null, false, RedirectResponse::class],
             ['AQAOXT322JDYRKVJ', 'ROLE_ADMIN', '192.168.1.1', true, RedirectResponse::class],
-            [false, 'ROLE_ADMIN', '192.168.1.1', false, Response::class],
+            [null, 'ROLE_ADMIN', '192.168.1.1', false, Response::class],
         ];
     }
 
-    private function createTestClass(string $secret, string $userRole, string $remoteAddr, bool $needSession): void
+    private function createTestClass(?string $secret, string $userRole, ?string $remoteAddr, bool $needSession): void
     {
         $this->user = new BaseUser();
-        if ($secret) {
+        if (null !== $secret) {
             $this->user->setTwoStepVerificationCode($secret);
         }
-        $this->token = new UsernamePasswordToken($this->user, null, 'admin', [new Role($userRole)]);
+        $this->token = new UsernamePasswordToken($this->user, null, 'admin', [$userRole]);
         $tokenStorage = new TokenStorage();
         $tokenStorage->setToken($this->token);
         $authManagerMock = $this->createMock(AuthenticationManagerInterface::class);
@@ -100,8 +99,8 @@ class TwoFactorLoginSuccessHandlerTest extends TestCase
             'ROLE_USER' => [''],
         ]);
         $authChecker = new AuthorizationChecker($tokenStorage, $authManagerMock, new AccessDecisionManager([new RoleHierarchyVoter($roleHierarchy)]));
-        $templateEngineMock = $this->createMock(EngineInterface::class);
-        $templateEngineMock->method('renderResponse')->willReturn(Response::create('Rendered response'));
+        $templateEngineMock = $this->createMock(Environment::class);
+        $templateEngineMock->method('render')->willReturn('Rendered view');
         $userManagerMock = $this->createMock(UserManagerInterface::class);
         $routerMock = $this->createMock(UrlGeneratorInterface::class);
         $routerMock->method('generate')->willReturn('/admin/dashboard');
@@ -115,7 +114,7 @@ class TwoFactorLoginSuccessHandlerTest extends TestCase
             $routerMock
         );
         $this->request = Request::create('/');
-        if ($remoteAddr) {
+        if (null !== $remoteAddr) {
             $this->request->server->set('REMOTE_ADDR', $remoteAddr);
         }
         if ($needSession) {

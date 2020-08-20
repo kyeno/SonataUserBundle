@@ -20,25 +20,25 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use Sonata\AdminBundle\Admin\Pool;
 use Sonata\AdminBundle\Templating\TemplateRegistryInterface;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccountStatusException;
 use Symfony\Component\Translation\TranslatorInterface;
+use Twig\Environment;
 
 final class ResetAction
 {
     use LoggerAwareTrait;
 
     /**
-     * @var EngineInterface
+     * @var Environment
      */
-    private $templating;
+    private $twig;
 
     /**
      * @var UrlGeneratorInterface
@@ -81,7 +81,7 @@ final class ResetAction
     private $translator;
 
     /**
-     * @var Session
+     * @var SessionInterface
      */
     private $session;
 
@@ -96,7 +96,7 @@ final class ResetAction
     private $firewallName;
 
     public function __construct(
-        EngineInterface $templating,
+        Environment $twig,
         UrlGeneratorInterface $urlGenerator,
         AuthorizationCheckerInterface $authorizationChecker,
         Pool $adminPool,
@@ -105,11 +105,11 @@ final class ResetAction
         UserManagerInterface $userManager,
         LoginManagerInterface $loginManager,
         TranslatorInterface $translator,
-        Session $session,
+        SessionInterface $session,
         int $resetTtl,
         string $firewallName
     ) {
-        $this->templating = $templating;
+        $this->twig = $twig;
         $this->urlGenerator = $urlGenerator;
         $this->authorizationChecker = $authorizationChecker;
         $this->adminPool = $adminPool;
@@ -161,7 +161,7 @@ final class ResetAction
             } catch (AccountStatusException $ex) {
                 // We simply do not authenticate users which do not pass the user
                 // checker (not enabled, expired, etc.).
-                $this->getLogger()->warning(sprintf(
+                $this->logger->warning(sprintf(
                     'Unable to login user %d after password reset',
                     $user->getId()
                 ), ['exception' => $ex]);
@@ -172,11 +172,11 @@ final class ResetAction
             return $response;
         }
 
-        return $this->templating->renderResponse('@SonataUser/Admin/Security/Resetting/reset.html.twig', [
+        return new Response($this->twig->render('@SonataUser/Admin/Security/Resetting/reset.html.twig', [
             'token' => $token,
             'form' => $form->createView(),
             'base_template' => $this->templateRegistry->getTemplate('layout'),
             'admin_pool' => $this->adminPool,
-        ]);
+        ]));
     }
 }

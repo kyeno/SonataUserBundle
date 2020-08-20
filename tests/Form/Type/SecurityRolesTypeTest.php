@@ -16,7 +16,6 @@ namespace Sonata\UserBundle\Tests\Form\Type;
 use Sonata\UserBundle\Form\Type\SecurityRolesType;
 use Sonata\UserBundle\Security\EditableRolesBuilder;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -37,10 +36,6 @@ class SecurityRolesTypeTest extends TypeTestCase
 
         $options = $optionResolver->resolve();
         $this->assertCount(3, $options['choices']);
-
-        if (method_exists(FormTypeInterface::class, 'setDefaultOptions')) {
-            $this->assertTrue($options['choices_as_values']);
-        }
     }
 
     public function testGetParent(): void
@@ -62,7 +57,7 @@ class SecurityRolesTypeTest extends TypeTestCase
 
         $this->assertTrue($form->isSynchronized());
         $this->assertCount(1, $form->getData());
-        $this->assertTrue(\in_array('ROLE_FOO', $form->getData(), true));
+        $this->assertContains('ROLE_FOO', $form->getData());
     }
 
     public function testSubmitInvalidData(): void
@@ -98,27 +93,27 @@ class SecurityRolesTypeTest extends TypeTestCase
         $this->assertContains('ROLE_SUPER_ADMIN', $form->getData());
     }
 
-    protected function getExtensions()
+    protected function getExtensions(): array
     {
-        $this->roleBuilder = $roleBuilder = $this->createMock(EditableRolesBuilder::class);
+        $this->roleBuilder = $this->createMock(EditableRolesBuilder::class);
 
-        $this->roleBuilder->expects($this->any())->method('getRoles')->will($this->returnValue([
+        $this->roleBuilder->method('getRoles')->willReturn([
           'ROLE_FOO' => 'ROLE_FOO',
           'ROLE_USER' => 'ROLE_USER',
           'ROLE_ADMIN' => 'ROLE_ADMIN: ROLE_USER',
-        ]));
+        ]);
 
-        $this->roleBuilder->expects($this->any())->method('getRolesReadOnly')->will($this->returnValue([]));
+        $this->roleBuilder->method('getRolesReadOnly')->willReturn([]);
 
         $childType = new SecurityRolesType($this->roleBuilder);
 
         return [new PreloadedExtension([
-          $childType->getName() => $childType,
+          $childType,
         ], [])];
     }
 
-    private function getSecurityRolesTypeName()
+    private function getSecurityRolesTypeName(): string
     {
-        return 'Sonata\UserBundle\Form\Type\SecurityRolesType';
+        return SecurityRolesType::class;
     }
 }

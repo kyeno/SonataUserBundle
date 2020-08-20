@@ -53,7 +53,7 @@ abstract class User extends AbstractedUser implements UserInterface
     /**
      * {@inheritdoc}
      */
-    public function setCreatedAt(\DateTime $createdAt = null)
+    public function setCreatedAt(?\DateTime $createdAt = null)
     {
         $this->createdAt = $createdAt;
 
@@ -71,7 +71,7 @@ abstract class User extends AbstractedUser implements UserInterface
     /**
      * {@inheritdoc}
      */
-    public function setUpdatedAt(\DateTime $updatedAt = null)
+    public function setUpdatedAt(?\DateTime $updatedAt = null)
     {
         $this->updatedAt = $updatedAt;
 

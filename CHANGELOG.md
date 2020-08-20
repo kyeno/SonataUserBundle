@@ -2,6 +2,114 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.7.0](https://github.com/sonata-project/SonataUserBundle/compare/4.6.0...4.7.0) - 2020-07-30
+### Changed
+- [[#1183](https://github.com/sonata-project/SonataUserBundle/pull/1183)]
+  SonataEasyExtendsBundle is now optional, using SonataDoctrineBundle is
+preferred ([@jordisala1991](https://github.com/jordisala1991))
+
+### Deprecated
+- [[#1183](https://github.com/sonata-project/SonataUserBundle/pull/1183)] Using
+  SonataEasyExtendsBundle to add Doctrine mapping information
+([@jordisala1991](https://github.com/jordisala1991))
+
+### Fixed
+- [[#1202](https://github.com/sonata-project/SonataUserBundle/pull/1202)] Fixed
+  wrong placeholder delimiters at ReST API controller `UserController`.
+([@phansys](https://github.com/phansys))
+- [[#1195](https://github.com/sonata-project/SonataUserBundle/pull/1195)] Fixed
+  passing "format' parameter to API routes.
+([@phansys](https://github.com/phansys))
+- [[#1194](https://github.com/sonata-project/SonataUserBundle/pull/1194)] Fixed
+  API route names. ([@phansys](https://github.com/phansys))
+
+### Removed
+- [[#1192](https://github.com/sonata-project/SonataUserBundle/pull/1192)] Support for PHP < 7.2 ([@wbloszyk](https://github.com/wbloszyk))
+
+## [4.6.0](https://github.com/sonata-project/SonataUserBundle/compare/4.5.3...4.6.0) - 2020-06-29
+### Added
+- [[#1185](https://github.com/sonata-project/SonataUserBundle/pull/1185)] Added
+  support for "friendsofsymfony/rest-bundle:^3.0";
+([@phansys](https://github.com/phansys))
+- [[#1185](https://github.com/sonata-project/SonataUserBundle/pull/1185)] Added
+  public alias `Sonata\UserBundle\Controller\Api\UserController` for
+`sonata.user.controller.api.user` service;
+([@phansys](https://github.com/phansys))
+- [[#1185](https://github.com/sonata-project/SonataUserBundle/pull/1185)] Added
+  public alias `Sonata\UserBundle\Controller\Api\GroupController` for
+`sonata.user.controller.api.group` service.
+([@phansys](https://github.com/phansys))
+
+### Fixed
+- [[#1180](https://github.com/sonata-project/SonataUserBundle/pull/1180)] Fixed
+  display errors in reset template
+([@clementlefrancois](https://github.com/clementlefrancois))
+- [[#1175](https://github.com/sonata-project/SonataUserBundle/pull/1175)] Fixed
+  a bug with ResetAction relying on concrete Session implementation
+([@oleg-andreyev](https://github.com/oleg-andreyev))
+
+### Removed
+- [[#1185](https://github.com/sonata-project/SonataUserBundle/pull/1185)]
+  Removed support for `symfony/*`:<4.4;
+([@phansys](https://github.com/phansys))
+- [[#1185](https://github.com/sonata-project/SonataUserBundle/pull/1185)]
+  Removed support for deprecated "rest" routing type.
+([@phansys](https://github.com/phansys))
+- [[#1173](https://github.com/sonata-project/SonataUserBundle/pull/1173)]
+  Remove SonataCoreBundle dependencies
+([@wbloszyk](https://github.com/wbloszyk))
+
+## [4.5.3](https://github.com/sonata-project/SonataUserBundle/compare/4.5.2...4.5.3) - 2020-05-07
+### Added
+- czech translations
+
+### Fixed
+- Fixed retrieving all forwarded ip headers in the google authenticator helper
+
+### Security
+- Avoid leaking usernames in password recovery
+
+## [4.5.2](https://github.com/sonata-project/SonataUserBundle/compare/4.5.1...4.5.2) - 2020-02-04
+### Fixed
+- some deprecations form the core bundle
+- Doctrine MongoDB mapping
+
+## [4.5.1](https://github.com/sonata-project/SonataUserBundle/compare/4.5.0...4.5.1) - 2019-10-21
+### Added
+- Add missing translation for admin menu
+
+### Fixed
+ - Fixed invocation of non-existent "getLogger" method. Changed to access property.
+
+## [4.5.0](https://github.com/sonata-project/SonataUserBundle/compare/4.4.0...4.5.0) - 2019-09-27
+### Fixed
+- Missing Spanish translations.
+
+### Changed
+- Replaced usages of deprecated "templating" service with "twig" where possible.
+
+### Removed
+- Dependency conflict against "jms/serializer:^3.0".
+
+### Changed
+- Add missing dependency against "twig/twig"
+- Changed usages of `{% spaceless %}` tag, which is deprecated as of Twig 1.38
+  with `{% apply spaceless %}` filter
+
+## [4.4.0](https://github.com/sonata-project/SonataUserBundle/compare/4.3.0...4.4.0) - 2019-06-13
+
+### Added
+- Added compatibility with jms/serializer-bundle:^3.0 and jms/serializer:^2.0
+- Added missing google auth french translation
+
+### Fixed
+- Fixed a bug with inability to use external model classes
+- Fixed wrong google auth user manager argument when not using autowiring
+- Fixed hard coded google auth redirection url
+
+### Changed
+- Updated `_controller` attribute for routes which were using deprecated syntax.
+
 ## [4.3.0](https://github.com/sonata-project/SonataUserBundle/compare/4.2.3...4.3.0) - 2019-01-30
 
 ### Fixed

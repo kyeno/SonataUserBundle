@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Sonata\UserBundle\Entity;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Sonata\CoreBundle\Model\BaseEntityManager;
+use Sonata\Doctrine\Entity\BaseEntityManager;
 
 /**
  * This UserManageProxy class is used to keep UserManager compatible with Sonata ManagerInterface implementation
@@ -32,9 +32,7 @@ class UserManagerProxy extends BaseEntityManager
     /**
      * UserManagerProxy constructor.
      *
-     * @param string          $class
-     * @param ManagerRegistry $registry
-     * @param UserManager     $userManager
+     * @param string $class
      */
     public function __construct($class, ManagerRegistry $registry, UserManager $userManager)
     {
@@ -62,7 +60,7 @@ class UserManagerProxy extends BaseEntityManager
     /**
      * {@inheritdoc}
      */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
     {
         return $this->userManager->findBy($criteria, $orderBy, $limit, $offset);
     }
@@ -70,7 +68,7 @@ class UserManagerProxy extends BaseEntityManager
     /**
      * {@inheritdoc}
      */
-    public function findOneBy(array $criteria, array $orderBy = null)
+    public function findOneBy(array $criteria, ?array $orderBy = null)
     {
         return $this->userManager->findOneBy($criteria, $orderBy);
     }
