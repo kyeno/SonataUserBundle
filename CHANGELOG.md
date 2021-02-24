@@ -2,6 +2,32 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.11.0](https://github.com/sonata-project/SonataUserBundle/compare/4.10.2...4.11.0) - 2021-02-15
+### Added
+- [[#1325](https://github.com/sonata-project/SonataUserBundle/pull/1325)] Support for "doctrine/common:^3". ([@phansys](https://github.com/phansys))
+
+## [4.10.2](https://github.com/sonata-project/SonataUserBundle/compare/4.10.1...4.10.2) - 2021-02-05
+### Changed
+- [[#1323](https://github.com/sonata-project/SonataUserBundle/pull/1323)] `GroupManager::getPager()` return type is `Sonata\DatagridBundle\Pager\PagerInterface`. ([@Jean-ita](https://github.com/Jean-ita))
+- [[#1323](https://github.com/sonata-project/SonataUserBundle/pull/1323)] `UserManager::getPager()` return type is `Sonata\DatagridBundle\Pager\PagerInterface`. ([@Jean-ita](https://github.com/Jean-ita))
+
+## [4.10.1](https://github.com/sonata-project/SonataUserBundle/compare/4.10.0...4.10.1) - 2020-11-24
+### Fixed
+- [[#1288](https://github.com/sonata-project/SonataUserBundle/pull/1288)] Duplicate translation in `src/Resources/translations/SonataUserBundle.nl.xliff` ([@elyanory](https://github.com/elyanory))
+
+## [4.10.0](https://github.com/sonata-project/SonataUserBundle/compare/4.9.0...4.10.0) - 2020-11-24
+### Added
+- [[#1263](https://github.com/sonata-project/SonataUserBundle/pull/1263)] Support for "symfony/mailer" in `Sonata\UserBundle\Mailer\Mailer` ([@phansys](https://github.com/phansys))
+
+### Changed
+- [[#1271](https://github.com/sonata-project/SonataUserBundle/pull/1271)] Updates dutch translations ([@zghosts](https://github.com/zghosts))
+
+### Deprecated
+- [[#1263](https://github.com/sonata-project/SonataUserBundle/pull/1263)] Support for "swiftmailer/swiftmailer" in `Sonata\UserBundle\Mailer\Mailer` ([@phansys](https://github.com/phansys))
+
+### Fixed
+- [[#1266](https://github.com/sonata-project/SonataUserBundle/pull/1266)] Fixed the problem of the message "sonata_user_already_authenticated" not being translated ([@BitScout](https://github.com/BitScout))
+
 ## [4.9.0](https://github.com/sonata-project/SonataUserBundle/compare/4.8.0...4.9.0) - 2020-10-26
 ### Added
 - [[#1225](https://github.com/sonata-project/SonataUserBundle/pull/1225)] Support for `nelmio/api-doc-bundle` >= 3.6 ([@wbloszyk](https://github.com/wbloszyk))

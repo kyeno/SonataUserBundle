@@ -72,7 +72,7 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
         if (class_exists('Google\Authenticator\GoogleAuthenticator')) {
             @trigger_error(
                 'The \'Google\Authenticator\' namespace is deprecated in sonata-project/GoogleAuthenticator since version 2.1 and will be removed in 3.0.',
-                E_USER_DEPRECATED
+                \E_USER_DEPRECATED
             );
         }
 
@@ -126,6 +126,8 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
         $container->setParameter('sonata.user.impersonating', $config['impersonating']);
 
         $this->configureGoogleAuthenticator($config, $container);
+
+        $this->createDoctrineCommonBackwardCompatibilityAliases();
     }
 
     /**
@@ -251,7 +253,7 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
     {
         @trigger_error(
             'Using this method is deprecated since sonata-project/user-bundle 4.7. You should instead register SonataDoctrineBundle and use `registerSonataDoctrineMapping()`',
-            E_USER_DEPRECATED
+            \E_USER_DEPRECATED
         );
 
         foreach ($config['class'] as $type => $class) {
@@ -368,5 +370,20 @@ class SonataUserExtension extends Extension implements PrependExtensionInterface
                     'onDelete' => 'CASCADE',
                 ]])
         );
+    }
+
+    /**
+     * We MUST remove this method when support for "friendsofsymfony/user-bundle" is dropped
+     * or adapted to work with "doctrine/common:^3".
+     */
+    private function createDoctrineCommonBackwardCompatibilityAliases(): void
+    {
+        if (!interface_exists(\Doctrine\Common\Persistence\ObjectManager::class)) {
+            class_alias(\Doctrine\Persistence\ObjectManager::class, \Doctrine\Common\Persistence\ObjectManager::class);
+        }
+
+        if (!class_exists(\Doctrine\Common\Persistence\Event\LifecycleEventArgs::class)) {
+            class_alias(\Doctrine\Persistence\Event\LifecycleEventArgs::class, \Doctrine\Common\Persistence\Event\LifecycleEventArgs::class);
+        }
     }
 }
